@@ -1,9 +1,9 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const app = express();
+const app: Application = express();
 
 const port = process.env.PORT;
 
