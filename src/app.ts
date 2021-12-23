@@ -1,18 +1,24 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
-
-import * as dotenv from 'dotenv';
-dotenv.config();
+import config from './config/config';
+import sampleRoute from './routes/sample';
 
 const app: Application = express();
 
-const port = process.env.PORT;
+/*Routes*/
+app.use(sampleRoute);
 
-app.get('/', (req: Request, res: Response, next: NextFunction) => {
-	res.status(200).json({
-		message: 'Status OK',
+/**Error handling */
+app.use((req: Request, res: Response, next: NextFunction) => {
+	const error = new Error('Not Found');
+
+	return res.status(404).json({
+		message: error.message,
 	});
 });
 
-app.listen(port, () => {
-	console.log(`Server running on port:${port}`);
+/**Server */
+app.listen(config.server.port, () => {
+	console.log(
+		`Server running on ${config.server.hostname}:${config.server.port}`
+	);
 });
