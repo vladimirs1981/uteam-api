@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const config_1 = __importDefault(require("./config/config"));
 const sample_1 = __importDefault(require("./routes/sample"));
+const database_1 = __importDefault(require("./util/database"));
 const app = (0, express_1.default)();
 /*Routes*/
 app.use(sample_1.default);
@@ -17,6 +18,8 @@ app.use((req, res, next) => {
     });
 });
 /**Server */
-app.listen(config_1.default.server.port, () => {
-    console.log(`Server running on ${config_1.default.server.hostname}:${config_1.default.server.port}`);
+database_1.default.sync().then(() => {
+    app.listen(config_1.default.server.port, () => {
+        console.log(`Server running on ${config_1.default.server.hostname}:${config_1.default.server.port}`);
+    });
 });
