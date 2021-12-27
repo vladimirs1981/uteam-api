@@ -1,9 +1,17 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import config from './config/config';
 import sampleRoute from './routes/sample';
-import sequelize from './util/database';
+import { database } from './util/database';
 
 const app: Application = express();
+
+app.use(express.json());
+app.use(
+	cors({
+		origin: ['http://localhost:3000'],
+	})
+);
 
 /*Routes*/
 app.use(sampleRoute);
@@ -17,11 +25,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 	});
 });
 
-/**Server */
-sequelize.sync().then(() => {
-	app.listen(config.server.port, () => {
-		console.log(
-			`Server running on ${config.server.hostname}:${config.server.port}`
-		);
+/**Server + DB */
+(async () => {
+	await database.sequelize.sync({ alter: true }).then(() => {
+		app.listen(config.server.port, () => {
+			console.log(`Server is running on port:${config.server.port}`);
+		});
 	});
-});
+})();

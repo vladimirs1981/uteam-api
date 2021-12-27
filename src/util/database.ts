@@ -1,8 +1,9 @@
 import { Sequelize } from 'sequelize';
+import { InitUser } from '../models/user';
 
 import config from '../config/config';
 
-const sequelize = new Sequelize(
+export const sequelize = new Sequelize(
 	config.server.db_name,
 	config.server.db_user,
 	config.server.db_pass,
@@ -12,4 +13,7 @@ const sequelize = new Sequelize(
 	}
 );
 
-export default sequelize;
+export const database = {
+	sequelize,
+	User: InitUser(sequelize),
+};
