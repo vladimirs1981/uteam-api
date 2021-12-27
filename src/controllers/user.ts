@@ -1,5 +1,4 @@
-import express, { Request, Response, NextFunction, Router } from 'express';
-import { database } from '../util/database';
+import { Request, Response, NextFunction } from 'express';
 import User from '../models/user';
 
 const allUsers = (req: Request, res: Response, next: NextFunction) => {
@@ -25,10 +24,6 @@ const createUser = (req: Request, res: Response, next: NextFunction) => {
 		})
 		.catch((err) => console.log(err));
 };
-
-// export const getUsers = (req: Request, res: Response, next: NextFunction) => {
-//     User.findAll
-// };
 
 export default {
 	allUsers,
