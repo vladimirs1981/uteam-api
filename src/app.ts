@@ -2,11 +2,13 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import config from './config/config';
 import sampleRoute from './routes/sample';
+import userRoutes from './routes/user';
 import { database } from './util/database';
 
 const app: Application = express();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(
 	cors({
 		origin: ['http://localhost:3000'],
@@ -15,6 +17,7 @@ app.use(
 
 /*Routes*/
 app.use(sampleRoute);
+app.use(userRoutes);
 
 /**Error handling */
 app.use((req: Request, res: Response, next: NextFunction) => {

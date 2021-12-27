@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import { InitUser } from '../models/user';
+import User from '../models/user';
 
 import config from '../config/config';
 
@@ -15,5 +15,5 @@ export const sequelize = new Sequelize(
 
 export const database = {
 	sequelize,
-	User: InitUser(sequelize),
+	User: sequelize,
 };
