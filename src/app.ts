@@ -1,4 +1,4 @@
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import config from './config/config';
 import sampleRoute from './routes/sample';
@@ -20,7 +20,7 @@ app.use(sampleRoute);
 app.use(userRoutes);
 
 /**Error handling */
-app.use((req: Request, res: Response, next: NextFunction) => {
+app.use((req: Request, res: Response) => {
 	const error = new Error('Not Found');
 
 	return res.status(404).json({

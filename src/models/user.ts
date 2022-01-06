@@ -2,13 +2,25 @@ import * as Sequelize from 'sequelize';
 import { sequelize } from '../util/database';
 
 interface UserAttributes {
-	id?: number;
+	id: number;
 	username: string;
 	email: string;
 	password: string;
 }
 
-class User extends Sequelize.Model implements UserAttributes {
+//id is optional
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface UserCreationAttributes
+	extends Sequelize.Optional<UserAttributes, 'id'> {}
+
+interface UserInstance
+	extends Sequelize.Model<UserAttributes, UserCreationAttributes>,
+		UserAttributes {
+	createdAt?: Date;
+	updatedAt?: Date;
+}
+
+class User extends Sequelize.Model implements UserInstance {
 	id!: number;
 	username!: string;
 	email!: string;
@@ -22,6 +34,7 @@ User.init(
 			type: Sequelize.DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
+			unique: true,
 		},
 		username: {
 			type: Sequelize.DataTypes.STRING(128),
@@ -30,6 +43,7 @@ User.init(
 		email: {
 			type: Sequelize.DataTypes.STRING(128),
 			allowNull: false,
+			unique: true,
 		},
 		password: {
 			type: Sequelize.DataTypes.STRING(128),
