@@ -1,34 +1,42 @@
-import { Request, Response } from 'express';
+import { RequestHandler } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
 import User from '../models/user';
-import { RegisterValidation } from '../validation/register.validation';
 
-const allUsers = (req: Request, res: Response) => {
-	User.findAll()
-		.then((users) => {
-			res.status(200).json(users);
-		})
-		.catch((err) => console.log(err));
+// const allUsers = (req: Request, res: Response) => {
+// 	User.findAll()
+// 		.then((users) => {
+// 			res.status(200).json(users);
+// 		})
+// 		.catch((err) => console.log(err));
+// };
+
+const getUsers: RequestHandler = async (req, res) => {
+	try {
+		const users = await User.findAll({ where: {} });
+		return res.status(200).json({ users: users });
+	} catch (err) {
+		return res.status(500).json({ message: 'Fail to read users.' });
+	}
 };
 
-const registerUser = async (req: Request, res: Response) => {
+const registerUser: RequestHandler = async (req, res) => {
 	const salt = await bcrypt.genSalt(10);
-	const body = req.body;
-	const { error } = RegisterValidation.validate(body);
-	if (error) {
-		return res.status(400).send(error.details);
-	}
+	// const body = req.body;
+	// const { error } = RegisterValidation.validate(body);
+	// if (error) {
+	// 	return res.status(400).send(error.details);
+	// }
 
 	const user = {
-		username: body.username,
-		email: body.email,
-		password: await bcrypt.hash(body.password, salt),
+		username: req.body.username,
+		email: req.body.email,
+		password: await bcrypt.hash(req.body.password, salt),
 	};
 	const userDoc = await User.findOne({
 		where: {
-			[Op.or]: [{ username: body.username }, { email: body.email }],
+			[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
 		},
 	});
 	if (userDoc) {
@@ -40,7 +48,7 @@ const registerUser = async (req: Request, res: Response) => {
 	res.status(201).json(created_user);
 };
 
-const loginUser = async (req: Request, res: Response) => {
+const loginUser: RequestHandler = async (req, res) => {
 	const { username, email } = req.body;
 	const user = await User.findOne({
 		where: {
@@ -54,7 +62,7 @@ const loginUser = async (req: Request, res: Response) => {
 		);
 		if (password_valid) {
 			const token = jwt.sign(
-				{ id: user.id, email: user.email, username: user.username },
+				{ username: user.username },
 				process.env.SECRET as string
 			);
 			res.status(200).json({ message: 'OK', token: token });
@@ -67,7 +75,7 @@ const loginUser = async (req: Request, res: Response) => {
 };
 
 export default {
-	allUsers,
+	getUsers,
 	registerUser,
 	loginUser,
 };

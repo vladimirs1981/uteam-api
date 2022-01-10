@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import User from '../models/user';
+import Profile from '../models/profile';
 
 import config from '../config/config';
 
@@ -16,4 +17,5 @@ export const sequelize = new Sequelize(
 export const database = {
 	sequelize,
 	User: sequelize,
+	Profile: sequelize,
 };

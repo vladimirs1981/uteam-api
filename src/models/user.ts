@@ -27,7 +27,6 @@ class User extends Sequelize.Model implements UserInstance {
 	password!: string;
 }
 
-//export const InitUser = (sequelize: Sequelize.Sequelize) => {
 User.init(
 	{
 		id: {
@@ -53,8 +52,8 @@ User.init(
 	{
 		tableName: 'users',
 		sequelize: sequelize,
+		modelName: 'user',
 	}
 );
-//};
 
 export default User;
