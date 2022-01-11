@@ -1,7 +1,8 @@
 import * as Sequelize from 'sequelize';
 import { sequelize } from '../util/database';
+import Profile from './profile';
 
-interface UserAttributes {
+export interface UserAttributes {
 	id: number;
 	username: string;
 	email: string;
@@ -36,24 +37,27 @@ User.init(
 			unique: true,
 		},
 		username: {
-			type: Sequelize.DataTypes.STRING(128),
+			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
 		},
 		email: {
-			type: Sequelize.DataTypes.STRING(128),
+			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
-			unique: true,
+			unique: 'email',
 		},
 		password: {
-			type: Sequelize.DataTypes.STRING(128),
+			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
 		},
 	},
 	{
+		//	indexes: [{ unique: true, fields: ['email'] }],
 		tableName: 'users',
 		sequelize: sequelize,
 		modelName: 'user',
 	}
 );
+Profile.belongsTo(User, { foreignKey: 'userId' });
+User.hasOne(Profile, { foreignKey: 'userId' });
 
 export default User;

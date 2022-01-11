@@ -6,6 +6,7 @@ class ProfileValidator {
 			body('id').optional().isNumeric(),
 			body('status')
 				.notEmpty()
+				.isIn(['Pending', 'Published'])
 				.withMessage('Enter status value: Pending or Published'),
 			body('name')
 				.notEmpty()
@@ -25,8 +26,8 @@ class ProfileValidator {
 			query('limit')
 				.notEmpty()
 				.withMessage('Query limit should not be empty.')
-				.isInt({ min: 1, max: 20 })
-				.withMessage('Limit value should be number between 1-20'),
+				.isInt({ max: 20 })
+				.withMessage('Limit value should be 20'),
 		];
 	}
 

@@ -15,7 +15,7 @@ class UserValidator {
 				.notEmpty()
 				.isLength({ min: 6 })
 				.withMessage(
-					'Password can not be empty and must be minimun 3 characters long.'
+					'Password can not be empty and must be minimun 6 characters long.'
 				),
 		];
 	}

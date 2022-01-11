@@ -6,6 +6,9 @@ import userRoutes from './routes/user';
 import profileRoutes from './routes/profile';
 import { database } from './util/database';
 
+import Profile from './models/profile';
+import User from './models/user';
+
 const app: Application = express();
 
 app.use(express.json());
@@ -29,6 +32,9 @@ app.use((req: Request, res: Response) => {
 		message: error.message,
 	});
 });
+
+// Profile.belongsTo(User, {constraints: true, onDelete: 'CASCADE'});
+// User.hasOne(Profile);
 
 /**Server + DB */
 (async () => {

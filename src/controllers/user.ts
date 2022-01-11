@@ -1,81 +1,123 @@
 import { RequestHandler } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { Op } from 'sequelize';
 import User from '../models/user';
+import signJWT from '../functions/signJWT';
+import Profile from '../models/profile';
 
-// const allUsers = (req: Request, res: Response) => {
-// 	User.findAll()
-// 		.then((users) => {
-// 			res.status(200).json(users);
-// 		})
-// 		.catch((err) => console.log(err));
-// };
+const validateToken: RequestHandler = (req, res) => {
+	console.log('Token validated, user authorized.');
+
+	return res.status(200).json({ message: 'Authorized.' });
+};
 
 const getUsers: RequestHandler = async (req, res) => {
 	try {
-		const users = await User.findAll({ where: {} });
+		const users = await User.findAll({
+			attributes: { exclude: ['password'] },
+			where: {},
+		});
 		return res.status(200).json({ users: users });
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to read users.' });
 	}
 };
 
-const registerUser: RequestHandler = async (req, res) => {
-	const salt = await bcrypt.genSalt(10);
-	// const body = req.body;
-	// const { error } = RegisterValidation.validate(body);
-	// if (error) {
-	// 	return res.status(400).send(error.details);
-	// }
-
-	const user = {
-		username: req.body.username,
-		email: req.body.email,
-		password: await bcrypt.hash(req.body.password, salt),
-	};
-	const userDoc = await User.findOne({
-		where: {
-			[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
-		},
-	});
-	if (userDoc) {
-		return res.status(400).json({
-			message: 'User already exists. ',
+const getUser: RequestHandler = async (req, res) => {
+	try {
+		const { id } = req.params;
+		const user = await User.findOne({
+			attributes: { exclude: ['password'] },
+			include: Profile,
+			where: { id },
 		});
+		if (!user) {
+			return res.json({ message: 'User not found' });
+		}
+		res.status(200).json(user);
+	} catch (error) {
+		return res.status(500).json({ message: 'Fail to read record.' });
 	}
-	const created_user = await User.create(user);
-	res.status(201).json(created_user);
+};
+
+const registerUser: RequestHandler = async (req, res) => {
+	try {
+		const salt = await bcrypt.genSalt(10);
+		const user = {
+			username: req.body.username,
+			email: req.body.email,
+			password: await bcrypt.hash(req.body.password, salt),
+		};
+		const userDoc = await User.findOne({
+			where: {
+				[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
+			},
+		});
+		if (userDoc) {
+			return res.status(400).json({
+				message: 'User already exists. ',
+			});
+		}
+		const created_user = await User.create(user);
+		res.status(201).json(created_user);
+	} catch (err) {
+		return res.status(500).json({ message: 'Fail to read record.' });
+	}
 };
 
 const loginUser: RequestHandler = async (req, res) => {
-	const { username, email } = req.body;
-	const user = await User.findOne({
-		where: {
-			[Op.or]: [{ username: username || null }, { email: email || null }],
-		},
-	});
-	if (user) {
-		const password_valid = await bcrypt.compare(
-			req.body.password,
-			user.password
-		);
-		if (password_valid) {
-			const token = jwt.sign(
-				{ username: user.username },
-				process.env.SECRET as string
-			);
-			res.status(200).json({ message: 'OK', token: token });
+	try {
+		const { username, email } = req.body;
+		const user = await User.findOne({
+			where: {
+				[Op.or]: [{ username: username || null }, { email: email || null }],
+			},
+		});
+		if (user) {
+			//const password_valid =
+			bcrypt.compare(req.body.password, user.password, (error, result) => {
+				if (error) {
+					return res.status(401).json({
+						message: 'Password Mismatch',
+					});
+				} else if (result) {
+					signJWT(user, (_error, token) => {
+						if (_error) {
+							return res.status(401).json({
+								message: 'Unable to sign token',
+								error: _error,
+							});
+						} else if (token) {
+							return res.status(200).json({
+								message: 'OK',
+								token,
+							});
+						}
+					});
+				}
+			});
+			// if (password_valid) {
+			// 	const token = jwt.sign(
+			// 		{ username: user.username },
+			// 		process.env.SECRET as string,
+			// 		{ expiresIn: '1h' }
+			// 	);
+			// 	res.status(200).json({ message: 'OK', token: token });
+			// } else {
+			// 	res.status(400).json({ error: 'Password incorrect' });
+			// }
 		} else {
-			res.status(400).json({ error: 'Password incorrect' });
+			res.status(404).json({ error: 'User does not exist' });
 		}
-	} else {
-		res.status(404).json({ error: 'User does not exist' });
+	} catch (err) {
+		return res.status(500).json({ message: 'Fail to read record.' });
 	}
 };
 
 export default {
+	validateToken,
 	getUsers,
+	getUser,
 	registerUser,
 	loginUser,
 };

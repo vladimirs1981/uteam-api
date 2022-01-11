@@ -24,6 +24,7 @@ router.post(
 //GET single profile
 router.get(
 	'/profiles/:id',
+
 	ProfileValidator.checkIdParams(),
 	Middleware.handleValidationErrors,
 	profileController.getProfile
@@ -33,6 +34,7 @@ router.get(
 router.put(
 	'/profiles/:id',
 	ProfileValidator.checkIdParams(),
+	ProfileValidator.checkCreateProfile(),
 	Middleware.handleValidationErrors,
 	profileController.updateProfile
 );
