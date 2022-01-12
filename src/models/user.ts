@@ -51,13 +51,16 @@ User.init(
 		},
 	},
 	{
-		//	indexes: [{ unique: true, fields: ['email'] }],
 		tableName: 'users',
 		sequelize: sequelize,
 		modelName: 'user',
 	}
 );
-Profile.belongsTo(User, { foreignKey: 'userId' });
+Profile.belongsTo(User, {
+	foreignKey: 'userId',
+	constraints: true,
+	onDelete: 'CASCADE',
+});
 User.hasOne(Profile, { foreignKey: 'userId' });
 
 export default User;

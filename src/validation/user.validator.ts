@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body, param, oneOf, check } from 'express-validator';
 
 class UserValidator {
 	checkCreateUser() {
@@ -17,6 +17,33 @@ class UserValidator {
 				.withMessage(
 					'Password can not be empty and must be minimun 6 characters long.'
 				),
+		];
+	}
+
+	checkLoginUser() {
+		return [
+			oneOf([
+				check('username')
+					.exists()
+					.withMessage('username or email is required')
+					.isLength({ min: 2 })
+					.withMessage('wrong username length'),
+
+				check('email')
+					.exists()
+					.withMessage('username or email is required')
+					.isEmail()
+					.withMessage('email not valid'),
+			]),
+			check('password').exists().withMessage('password is required'),
+		];
+	}
+
+	checkIdParams() {
+		return [
+			param('id')
+				.notEmpty()
+				.withMessage('Id should not be empty, enter valid profile Id.'),
 		];
 	}
 }

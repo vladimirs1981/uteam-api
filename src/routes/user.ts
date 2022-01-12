@@ -6,12 +6,21 @@ import extractJWT from '../middleware/extractJWT';
 
 const router = express.Router();
 
+//SAMPLE ROUTE TO CHECK TOKEN
 router.get('/validate', extractJWT, userController.validateToken);
 
+//GET ALL USERS
 router.get('/users', userController.getUsers);
 
-router.get('/users/:id', userController.getUser);
+//GET USER BY ID
+router.get(
+	'/users/:id',
+	UserValidator.checkIdParams(),
+	Middleware.handleValidationErrors,
+	userController.getUser
+);
 
+//CREATE NEW USER
 router.post(
 	'/register',
 	UserValidator.checkCreateUser(),
@@ -19,6 +28,12 @@ router.post(
 	userController.registerUser
 );
 
-router.post('/login', userController.loginUser);
+//LOGIN USER
+router.post(
+	'/login',
+	UserValidator.checkLoginUser(),
+	Middleware.handleValidationErrors,
+	userController.loginUser
+);
 
 export = router;

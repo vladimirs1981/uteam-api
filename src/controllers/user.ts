@@ -28,11 +28,16 @@ const getUser: RequestHandler = async (req, res) => {
 		const { id } = req.params;
 		const user = await User.findOne({
 			attributes: { exclude: ['password'] },
-			include: Profile,
+			include: [
+				{
+					model: Profile,
+					attributes: ['status', 'name', 'profilePhoto'],
+				},
+			],
 			where: { id },
 		});
 		if (!user) {
-			return res.json({ message: 'User not found' });
+			return res.status(404).json({ message: 'User not found' });
 		}
 		res.status(200).json(user);
 	} catch (error) {
@@ -74,38 +79,27 @@ const loginUser: RequestHandler = async (req, res) => {
 			},
 		});
 		if (user) {
-			//const password_valid =
-			bcrypt.compare(req.body.password, user.password, (error, result) => {
-				if (error) {
-					return res.status(401).json({
-						message: 'Password Mismatch',
-					});
-				} else if (result) {
-					signJWT(user, (_error, token) => {
-						if (_error) {
-							return res.status(401).json({
-								message: 'Unable to sign token',
-								error: _error,
-							});
-						} else if (token) {
-							return res.status(200).json({
-								message: 'OK',
-								token,
-							});
-						}
-					});
-				}
-			});
-			// if (password_valid) {
-			// 	const token = jwt.sign(
-			// 		{ username: user.username },
-			// 		process.env.SECRET as string,
-			// 		{ expiresIn: '1h' }
-			// 	);
-			// 	res.status(200).json({ message: 'OK', token: token });
-			// } else {
-			// 	res.status(400).json({ error: 'Password incorrect' });
-			// }
+			const password_valid = await bcrypt.compare(
+				req.body.password,
+				user.password
+			);
+			if (password_valid) {
+				signJWT(user, (_error, token) => {
+					if (_error) {
+						return res.status(401).json({
+							message: 'Unable to sign token',
+							error: _error,
+						});
+					} else if (token) {
+						return res.status(200).json({
+							message: 'OK',
+							token,
+						});
+					}
+				});
+			} else {
+				res.status(400).json({ error: 'Password incorrect' });
+			}
 		} else {
 			res.status(404).json({ error: 'User does not exist' });
 		}
