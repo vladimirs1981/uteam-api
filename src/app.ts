@@ -1,14 +1,17 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import config from './config/config';
 import sampleRoute from './routes/sample';
 import userRoutes from './routes/user';
 import profileRoutes from './routes/profile';
+import companyRoutes from './routes/company';
 import { database } from './util/database';
 
 const app: Application = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(
 	cors({
@@ -20,6 +23,7 @@ app.use(
 app.use(sampleRoute);
 app.use(userRoutes);
 app.use(profileRoutes);
+app.use(companyRoutes);
 
 /**Error handling */
 app.use((req: Request, res: Response) => {

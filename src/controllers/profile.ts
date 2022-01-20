@@ -1,38 +1,49 @@
-import { RequestHandler } from 'express';
+import { Request, RequestHandler, Response } from 'express';
+import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import Profile from '../models/profile';
 import User from '../models/user';
 
 const getProfiles: RequestHandler = async (req, res) => {
+	const { page, size } = req.query;
+
 	try {
-		const profiles = await Profile.findAll({
+		const profiles = await Profile.findAndCountAll({
 			include: [
 				{
 					model: User,
 					attributes: ['username', 'email'],
 				},
 			],
-			limit: 20,
+			limit: +size,
+			offset: (+page - 1) * +size,
 			where: {},
 		});
-		return res.status(200).json(profiles);
+
+		const pages = Math.ceil(profiles.count / +size);
+
+		res.status(200).send({
+			result: profiles,
+			pages: pages,
+			'current page': +page,
+		});
 	} catch (err) {
 		res.status(500).json({ message: 'Fail to read profiles.' });
 	}
 };
 
-const postProfiles: RequestHandler = async (req, res) => {
-	const { userId, status, name, profilePhoto } = req.body;
+const postProfiles = async (req: RequestWithUser, res: Response) => {
+	const { status, name, profilePhoto } = req.body;
 	try {
-		const user = await User.findOne({ where: { id: userId } });
-		const profile = await Profile.create({
+		const profile = await req.user.createProfile({
 			status,
 			name,
 			profilePhoto,
-			userId: user?.id,
+			userId: req.user.id,
 		});
+
 		return res.status(201).json({ message: 'Profile created.', profile });
 	} catch (err) {
-		return res.status(500).json({ message: 'Fail to create profile.' });
+		return res.status(500).json({ message: 'Fail to create profile.', err });
 	}
 };
 

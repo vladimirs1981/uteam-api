@@ -1,5 +1,7 @@
 import express from 'express';
 import profileController from '../controllers/profile';
+import authMiddleware from '../middleware/auth.middleware';
+import extractJWT from '../middleware/extractJWT';
 import Middleware from '../middleware/handle.validations';
 import ProfileValidator from '../validation/profile.validator';
 
@@ -16,6 +18,7 @@ router.get(
 //CREATE new profile
 router.post(
 	'/profiles',
+	authMiddleware,
 	ProfileValidator.checkCreateProfile(),
 	Middleware.handleValidationErrors,
 	profileController.postProfiles

@@ -1,23 +1,33 @@
-import { RequestHandler } from 'express';
+import { RequestHandler, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
 import User from '../models/user';
-import signJWT from '../functions/signJWT';
+import { createToken, createCookie } from '../functions/signJWT';
 import Profile from '../models/profile';
-
-const validateToken: RequestHandler = (req, res) => {
-	console.log('Token validated, user authorized.');
-
-	return res.status(200).json({ message: 'Authorized.' });
-};
+import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 
 const getUsers: RequestHandler = async (req, res) => {
+	const { page, size } = req.query;
+
 	try {
-		const users = await User.findAll({
+		const users = await User.findAndCountAll({
 			attributes: { exclude: ['password'] },
+			include: {
+				model: Profile,
+				attributes: { exclude: ['createdAt', 'updatedAt', 'userId'] },
+			},
+			limit: +size,
+			offset: (+page - 1) * +size,
 			where: {},
 		});
-		return res.status(200).json({ users: users });
+
+		const pages = Math.ceil(users.count / +size);
+
+		return res.status(200).send({
+			result: users,
+			pages: pages,
+			'current page': +page,
+		});
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to read users.' });
 	}
@@ -51,6 +61,7 @@ const registerUser: RequestHandler = async (req, res) => {
 		const user = {
 			username: req.body.username,
 			email: req.body.email,
+			role: req.body.role,
 			password: await bcrypt.hash(req.body.password, salt),
 		};
 		const userDoc = await User.findOne({
@@ -64,6 +75,8 @@ const registerUser: RequestHandler = async (req, res) => {
 			});
 		}
 		const created_user = await User.create(user);
+		const tokenData = createToken(created_user);
+		res.setHeader('Set-Cookie', [createCookie(tokenData)]);
 		res.status(201).json(created_user);
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to read record.' });
@@ -84,19 +97,25 @@ const loginUser: RequestHandler = async (req, res) => {
 				user.password
 			);
 			if (password_valid) {
-				signJWT(user, (_error, token) => {
-					if (_error) {
-						return res.status(401).json({
-							message: 'Unable to sign token',
-							error: _error,
-						});
-					} else if (token) {
-						return res.status(200).json({
-							message: 'OK',
-							token,
-						});
-					}
+				const tokenData = createToken(user);
+				res.setHeader('Set-Cookie', [createCookie(tokenData)]);
+				return res.status(200).json({
+					message: 'OK',
+					token: tokenData.token,
 				});
+				// signJWT(user, (_error, token) => {
+				// 	if (_error) {
+				// 		return res.status(401).json({
+				// 			message: 'Unable to sign token',
+				// 			error: _error,
+				// 		});
+				// 	} else if (token) {
+				// 		return res.status(200).json({
+				// 			message: 'OK',
+				// 			token,
+				// 		});
+				// 	}
+				// });
 			} else {
 				res.status(400).json({ error: 'Password incorrect' });
 			}
@@ -108,10 +127,23 @@ const loginUser: RequestHandler = async (req, res) => {
 	}
 };
 
+const logoutUser = async (req: RequestWithUser, res: Response) => {
+	res.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
+	res.status(200).send({ message: 'seccess' });
+	// const authHeader = req.headers['authorization'];
+	// jwt.sign(authHeader, '', { expiresIn: 1 }, (logout, err) => {
+	// 	if (logout) {
+	// 		res.send({ message: 'You have been Logged Out' });
+	// 	} else {
+	// 		res.send({ message: 'Error' });
+	// 	}
+	// });
+};
+
 export default {
-	validateToken,
 	getUsers,
 	getUser,
 	registerUser,
 	loginUser,
+	logoutUser,
 };

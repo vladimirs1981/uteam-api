@@ -18,12 +18,6 @@ class ProfileValidator {
 				.optional()
 				.isURL()
 				.withMessage('Profile photo must be a valid URL string.'),
-			body('userId')
-				.notEmpty()
-				.isNumeric()
-				.withMessage(
-					'userId can not be empty, must be a valid number user id.'
-				),
 		];
 	}
 
@@ -49,10 +43,16 @@ class ProfileValidator {
 
 	checkReadProfile() {
 		return [
-			query('limit')
+			query('page')
 				.notEmpty()
-				.isInt({ max: 20 })
-				.withMessage('Query limit should not be empty. Set it to 20.'),
+				.withMessage('Page query should not be empty.')
+				.isInt({ min: 1 })
+				.withMessage('Page limit minimum is 1'),
+			query('size')
+				.notEmpty()
+				.withMessage('Size query should not be empty.')
+				.isInt({ min: 1, max: 20 })
+				.withMessage('Set size query  from 1 to 20'),
 		];
 	}
 

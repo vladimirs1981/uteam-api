@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { sequelize } from '../util/database';
+import User from './user';
 
 enum Status {
 	Pending,
@@ -11,7 +12,6 @@ interface ProfileAttributes {
 	status: Status;
 	name: string;
 	profilePhoto: string;
-	userId: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -30,7 +30,8 @@ class Profile extends Sequelize.Model implements ProfileInstance {
 	status!: Status;
 	name!: string;
 	profilePhoto!: string;
-	userId!: number;
+
+	declare setUser: Sequelize.HasOneSetAssociationMixin<User, number>;
 }
 
 Profile.init(
@@ -54,10 +55,6 @@ Profile.init(
 		profilePhoto: {
 			type: Sequelize.DataTypes.STRING,
 			allowNull: true,
-		},
-		userId: {
-			type: Sequelize.DataTypes.INTEGER,
-			allowNull: false,
 		},
 	},
 	{

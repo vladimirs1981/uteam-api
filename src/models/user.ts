@@ -1,11 +1,20 @@
 import * as Sequelize from 'sequelize';
+import { HasOneCreateAssociationMixin } from 'sequelize';
+import user from '../controllers/user';
 import { sequelize } from '../util/database';
 import Profile from './profile';
+
+enum Role {
+	company_user,
+	company_admin,
+	superadmin,
+}
 
 export interface UserAttributes {
 	id: number;
 	username: string;
 	email: string;
+	role: Role;
 	password: string;
 }
 
@@ -25,7 +34,10 @@ class User extends Sequelize.Model implements UserInstance {
 	id!: number;
 	username!: string;
 	email!: string;
+	role!: Role;
 	password!: string;
+
+	declare createProfile: HasOneCreateAssociationMixin<Profile>;
 }
 
 User.init(
@@ -44,6 +56,12 @@ User.init(
 			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
 			unique: 'email',
+		},
+		role: {
+			type: Sequelize.DataTypes.ENUM({
+				values: ['company_user', 'company_admin', 'superadmin'],
+			}),
+			allowNull: false,
 		},
 		password: {
 			type: Sequelize.DataTypes.STRING,
