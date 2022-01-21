@@ -3,6 +3,7 @@ import cors from 'cors';
 import config from './config/config';
 import sampleRoute from './routes/sample';
 import userRoutes from './routes/user';
+import profileRoutes from './routes/profile';
 import { database } from './util/database';
 
 const app: Application = express();
@@ -18,6 +19,7 @@ app.use(
 /*Routes*/
 app.use(sampleRoute);
 app.use(userRoutes);
+app.use(profileRoutes);
 
 /**Error handling */
 app.use((req: Request, res: Response) => {

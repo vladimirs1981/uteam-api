@@ -1,7 +1,8 @@
 import * as Sequelize from 'sequelize';
 import { sequelize } from '../util/database';
+import Profile from './profile';
 
-interface UserAttributes {
+export interface UserAttributes {
 	id: number;
 	username: string;
 	email: string;
@@ -27,7 +28,6 @@ class User extends Sequelize.Model implements UserInstance {
 	password!: string;
 }
 
-//export const InitUser = (sequelize: Sequelize.Sequelize) => {
 User.init(
 	{
 		id: {
@@ -37,24 +37,30 @@ User.init(
 			unique: true,
 		},
 		username: {
-			type: Sequelize.DataTypes.STRING(128),
+			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
 		},
 		email: {
-			type: Sequelize.DataTypes.STRING(128),
+			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
-			unique: true,
+			unique: 'email',
 		},
 		password: {
-			type: Sequelize.DataTypes.STRING(128),
+			type: Sequelize.DataTypes.STRING,
 			allowNull: false,
 		},
 	},
 	{
 		tableName: 'users',
 		sequelize: sequelize,
+		modelName: 'user',
 	}
 );
-//};
+Profile.belongsTo(User, {
+	foreignKey: 'userId',
+	constraints: true,
+	onDelete: 'CASCADE',
+});
+User.hasOne(Profile, { foreignKey: 'userId' });
 
 export default User;
