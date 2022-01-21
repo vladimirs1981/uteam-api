@@ -12,8 +12,7 @@ class UserValidator {
 				.withMessage('Username must be minimum 2 characters long.'),
 			body('email').notEmpty().withMessage('Email can not be empty').isEmail(),
 			body('role')
-				.notEmpty()
-				.withMessage('Role can not be empty')
+				.optional()
 				.isIn(['company_user', 'company_admin', 'superadmin'])
 				.withMessage(
 					'Enter role value: company_user,  company_admin or superadmin'

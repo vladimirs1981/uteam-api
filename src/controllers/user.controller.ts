@@ -1,9 +1,9 @@
 import { RequestHandler, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
-import User from '../models/user';
+import User from '../models/user.model';
 import { createToken, createCookie } from '../functions/signJWT';
-import Profile from '../models/profile';
+import Profile from '../models/profile.model';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 
 const getUsers: RequestHandler = async (req, res) => {

@@ -1,8 +1,8 @@
 import config from '../config/config';
-import { NextFunction, RequestHandler, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
-import User from '../models/user';
+import User from '../models/user.model';
 
 const extractJWT = async (
 	req: RequestWithUser,

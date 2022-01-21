@@ -1,29 +1,7 @@
 import * as Sequelize from 'sequelize';
+import { ProfileInstance, Status } from '../interfaces/profile.model.interface';
 import { sequelize } from '../util/database';
-import User from './user';
-
-enum Status {
-	Pending,
-	Published,
-}
-
-interface ProfileAttributes {
-	id: number;
-	status: Status;
-	name: string;
-	profilePhoto: string;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface ProfileCreationAttributes
-	extends Sequelize.Optional<ProfileAttributes, 'id'> {}
-
-interface ProfileInstance
-	extends Sequelize.Model<ProfileAttributes, ProfileCreationAttributes>,
-		ProfileAttributes {
-	createdAt?: Date;
-	updatedAt?: Date;
-}
+import User from './user.model';
 
 class Profile extends Sequelize.Model implements ProfileInstance {
 	id!: number;
@@ -47,6 +25,7 @@ Profile.init(
 				values: ['Pending', 'Published'],
 			}),
 			allowNull: false,
+			defaultValue: 'Pending',
 		},
 		name: {
 			type: Sequelize.DataTypes.STRING,

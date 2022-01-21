@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
-import { TokenData, DataStoredInToken } from '../interfaces/token.interfaces';
-import { UserAttributes } from '../models/user';
+import { TokenData, DataStoredInToken } from '../interfaces/token.interface';
+import { UserAttributes } from '../interfaces/user.model.interface';
 
 export const createCookie = (tokenData: TokenData) => {
 	return `Authorization=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn}`;

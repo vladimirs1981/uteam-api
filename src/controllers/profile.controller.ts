@@ -1,7 +1,8 @@
 import { Request, RequestHandler, Response } from 'express';
+import { Op } from 'sequelize';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
-import Profile from '../models/profile';
-import User from '../models/user';
+import Profile from '../models/profile.model';
+import User from '../models/user.model';
 
 const getProfiles: RequestHandler = async (req, res) => {
 	const { page, size } = req.query;
@@ -47,7 +48,7 @@ const postProfiles = async (req: RequestWithUser, res: Response) => {
 	}
 };
 
-const getProfile: RequestHandler = async (req, res) => {
+const getProfile = async (req: RequestWithUser, res: Response) => {
 	try {
 		const { id } = req.params;
 		const profile = await Profile.findOne({
@@ -68,10 +69,18 @@ const getProfile: RequestHandler = async (req, res) => {
 	}
 };
 
-const updateProfile: RequestHandler = async (req, res) => {
+const updateProfile = async (req: RequestWithUser, res: Response) => {
 	try {
 		const { id } = req.params;
-		const profile = await Profile.findByPk(id);
+		const profile = await Profile.findOne({
+			include: [
+				{
+					model: User,
+					attributes: ['username', 'email'],
+				},
+			],
+			where: { [Op.and]: [{ id: id }, { userId: req.user.id }] },
+		});
 		if (!profile) {
 			return res.status(404).json({ message: 'Profile not found.' });
 		}

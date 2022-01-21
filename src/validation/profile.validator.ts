@@ -5,7 +5,7 @@ class ProfileValidator {
 		return [
 			body('id').optional().isNumeric(),
 			body('status')
-				.notEmpty()
+				.optional()
 				.isIn(['Pending', 'Published'])
 				.withMessage('Enter status value: Pending or Published'),
 			body('name')

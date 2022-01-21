@@ -1,34 +1,8 @@
 import * as Sequelize from 'sequelize';
 import { HasOneCreateAssociationMixin } from 'sequelize';
-import user from '../controllers/user';
+import { Role, UserInstance } from '../interfaces/user.model.interface';
 import { sequelize } from '../util/database';
-import Profile from './profile';
-
-enum Role {
-	company_user,
-	company_admin,
-	superadmin,
-}
-
-export interface UserAttributes {
-	id: number;
-	username: string;
-	email: string;
-	role: Role;
-	password: string;
-}
-
-//id is optional
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface UserCreationAttributes
-	extends Sequelize.Optional<UserAttributes, 'id'> {}
-
-interface UserInstance
-	extends Sequelize.Model<UserAttributes, UserCreationAttributes>,
-		UserAttributes {
-	createdAt?: Date;
-	updatedAt?: Date;
-}
+import Profile from './profile.model';
 
 class User extends Sequelize.Model implements UserInstance {
 	id!: number;
@@ -62,6 +36,7 @@ User.init(
 				values: ['company_user', 'company_admin', 'superadmin'],
 			}),
 			allowNull: false,
+			defaultValue: 'company_user',
 		},
 		password: {
 			type: Sequelize.DataTypes.STRING,

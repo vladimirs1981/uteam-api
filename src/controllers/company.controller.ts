@@ -1,6 +1,7 @@
 import { RequestHandler } from 'express';
 import { slugify } from '../functions/slugifyName';
-import Company from '../models/company';
+import Company from '../models/company.model';
+import Profile from '../models/profile.model';
 
 const getCompanies: RequestHandler = async (req, res) => {
 	const { page, size } = req.query;
@@ -10,6 +11,12 @@ const getCompanies: RequestHandler = async (req, res) => {
 			where: {},
 			limit: +size,
 			offset: (+page - 1) * +size,
+			include: [
+				{
+					model: Profile,
+					as: 'profiles',
+				},
+			],
 		});
 
 		const pages = Math.ceil(companies.count / +size);

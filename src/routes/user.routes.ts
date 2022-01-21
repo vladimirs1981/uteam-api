@@ -1,8 +1,7 @@
 import express from 'express';
-import userController from '../controllers/user';
+import userController from '../controllers/user.controller';
 import Middleware from '../middleware/handle.validations';
 import UserValidator from '../validation/user.validator';
-import extractJWT from '../middleware/extractJWT';
 import authMiddleware from '../middleware/auth.middleware';
 
 const router = express.Router();
@@ -10,7 +9,7 @@ const router = express.Router();
 //GET ALL USERS
 router.get(
 	'/users',
-	authMiddleware,
+	//authMiddleware,
 	UserValidator.checkReadUser(),
 	Middleware.handleValidationErrors,
 	userController.getUsers

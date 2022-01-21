@@ -2,10 +2,9 @@ import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import config from './config/config';
-import sampleRoute from './routes/sample';
-import userRoutes from './routes/user';
-import profileRoutes from './routes/profile';
-import companyRoutes from './routes/company';
+import userRoutes from './routes/user.routes';
+import profileRoutes from './routes/profile.routes';
+import companyRoutes from './routes/company.routes';
 import { database } from './util/database';
 
 const app: Application = express();
@@ -20,7 +19,6 @@ app.use(
 );
 
 /*Routes*/
-app.use(sampleRoute);
 app.use(userRoutes);
 app.use(profileRoutes);
 app.use(companyRoutes);

@@ -1,13 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
-import { DataStoredInToken } from '../interfaces/token.interfaces';
+import { DataStoredInToken } from '../interfaces/token.interface';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
-import User from '../models/user';
+import User from '../models/user.model';
 import config from '../config/config';
 
 const authMiddleware = async (
 	req: RequestWithUser,
 	res: Response,
+
 	next: NextFunction
 ) => {
 	const cookies = req.cookies;
