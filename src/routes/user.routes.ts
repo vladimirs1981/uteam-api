@@ -9,7 +9,7 @@ const router = express.Router();
 //GET ALL USERS
 router.get(
 	'/users',
-	//authMiddleware,
+	authMiddleware,
 	UserValidator.checkReadUser(),
 	Middleware.handleValidationErrors,
 	userController.getUsers

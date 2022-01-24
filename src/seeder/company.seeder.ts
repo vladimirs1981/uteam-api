@@ -2,7 +2,6 @@ import { database } from '../util/database';
 import faker from 'faker';
 import { randomInt } from 'crypto';
 import Company from '../models/company.model';
-import Profile from '../models/profile.model';
 import User from '../models/user.model';
 import { slugify } from '../functions/slugifyName';
 

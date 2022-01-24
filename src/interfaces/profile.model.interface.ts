@@ -14,7 +14,7 @@ export interface ProfileAttributes {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ProfileCreationAttributes
-	extends Sequelize.Optional<ProfileAttributes, 'id'> {}
+	extends Sequelize.Optional<ProfileAttributes, 'id' | 'status'> {}
 
 export interface ProfileInstance
 	extends Sequelize.Model<ProfileAttributes, ProfileCreationAttributes>,

@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import { slugify } from '../functions/slugifyName';
+import { CompanyCreationAttributes } from '../interfaces/company.model.interface';
 import Company from '../models/company.model';
 import Profile from '../models/profile.model';
 
@@ -19,7 +20,7 @@ const getCompanies: RequestHandler = async (req, res) => {
 			],
 		});
 
-		const pages = Math.ceil(companies.count / +size);
+		const pages: number = Math.ceil(companies.count / +size);
 
 		res.status(200).send({
 			result: companies,
@@ -34,7 +35,7 @@ const getCompanies: RequestHandler = async (req, res) => {
 const postCompany: RequestHandler = async (req, res) => {
 	const { name, logo } = req.body;
 	try {
-		const company = await Company.create({
+		const company: CompanyCreationAttributes = await Company.create({
 			name,
 			logo,
 			slug: slugify(name),
@@ -48,7 +49,7 @@ const postCompany: RequestHandler = async (req, res) => {
 const getCompany: RequestHandler = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const company = await Company.findOne({
+		const company: Company = await Company.findOne({
 			where: { id },
 		});
 		if (!company) {
@@ -67,7 +68,7 @@ const updateCompany: RequestHandler = async (req, res) => {
 		if (!company) {
 			return res.status(404).json({ message: 'Company not found.' });
 		}
-		const updatedCompany = await (company as Company).update({
+		const updatedCompany: Company = await (company as Company).update({
 			name: req.body.name,
 			logo: req.body.logo,
 			slug: slugify(req.body.name),
@@ -83,7 +84,7 @@ const updateCompany: RequestHandler = async (req, res) => {
 const deleteCompany: RequestHandler = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const company = await Company.findOne({ where: { id } });
+		const company: Company = await Company.findOne({ where: { id } });
 		if (!company) {
 			return res.status(404).json({ message: 'Company not found.' });
 		}

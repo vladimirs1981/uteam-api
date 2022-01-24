@@ -17,7 +17,7 @@ export interface UserAttributes {
 //id is optional
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserCreationAttributes
-	extends Sequelize.Optional<UserAttributes, 'id'> {}
+	extends Sequelize.Optional<UserAttributes, 'id' | 'role'> {}
 
 export interface UserInstance
 	extends Sequelize.Model<UserAttributes, UserCreationAttributes>,

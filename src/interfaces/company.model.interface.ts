@@ -8,7 +8,7 @@ interface CompanyAttributes {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-interface CompanyCreationAttributes
+export interface CompanyCreationAttributes
 	extends Sequelize.Optional<CompanyAttributes, 'id'> {}
 
 export interface CompanyInstance

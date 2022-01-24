@@ -5,6 +5,8 @@ import User from '../models/user.model';
 import { createToken, createCookie } from '../functions/signJWT';
 import Profile from '../models/profile.model';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
+import { UserCreationAttributes } from '../interfaces/user.model.interface';
+import { TokenData } from '../interfaces/token.interface';
 
 const getUsers: RequestHandler = async (req, res) => {
 	const { page, size } = req.query;
@@ -36,7 +38,7 @@ const getUsers: RequestHandler = async (req, res) => {
 const getUser: RequestHandler = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const user = await User.findOne({
+		const user: User = await User.findOne({
 			attributes: { exclude: ['password'] },
 			include: [
 				{
@@ -58,13 +60,13 @@ const getUser: RequestHandler = async (req, res) => {
 const registerUser: RequestHandler = async (req, res) => {
 	try {
 		const salt = await bcrypt.genSalt(10);
-		const user = {
+		const user: UserCreationAttributes = {
 			username: req.body.username,
 			email: req.body.email,
 			role: req.body.role,
 			password: await bcrypt.hash(req.body.password, salt),
 		};
-		const userDoc = await User.findOne({
+		const userDoc: User = await User.findOne({
 			where: {
 				[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
 			},
@@ -75,7 +77,7 @@ const registerUser: RequestHandler = async (req, res) => {
 			});
 		}
 		const created_user = await User.create(user);
-		const tokenData = createToken(created_user);
+		const tokenData: TokenData = createToken(created_user);
 		res.setHeader('Set-Cookie', [createCookie(tokenData)]);
 		res.status(201).json(created_user);
 	} catch (err) {
@@ -86,7 +88,7 @@ const registerUser: RequestHandler = async (req, res) => {
 const loginUser: RequestHandler = async (req, res) => {
 	try {
 		const { username, email } = req.body;
-		const user = await User.findOne({
+		const user: User = await User.findOne({
 			where: {
 				[Op.or]: [{ username: username || null }, { email: email || null }],
 			},
@@ -97,25 +99,12 @@ const loginUser: RequestHandler = async (req, res) => {
 				user.password
 			);
 			if (password_valid) {
-				const tokenData = createToken(user);
+				const tokenData: TokenData = createToken(user);
 				res.setHeader('Set-Cookie', [createCookie(tokenData)]);
 				return res.status(200).json({
 					message: 'OK',
 					token: tokenData.token,
 				});
-				// signJWT(user, (_error, token) => {
-				// 	if (_error) {
-				// 		return res.status(401).json({
-				// 			message: 'Unable to sign token',
-				// 			error: _error,
-				// 		});
-				// 	} else if (token) {
-				// 		return res.status(200).json({
-				// 			message: 'OK',
-				// 			token,
-				// 		});
-				// 	}
-				// });
 			} else {
 				res.status(400).json({ error: 'Password incorrect' });
 			}
@@ -129,15 +118,7 @@ const loginUser: RequestHandler = async (req, res) => {
 
 const logoutUser = async (req: RequestWithUser, res: Response) => {
 	res.setHeader('Set-Cookie', ['Authorization=;Max-age=0']);
-	res.status(200).send({ message: 'seccess' });
-	// const authHeader = req.headers['authorization'];
-	// jwt.sign(authHeader, '', { expiresIn: 1 }, (logout, err) => {
-	// 	if (logout) {
-	// 		res.send({ message: 'You have been Logged Out' });
-	// 	} else {
-	// 		res.send({ message: 'Error' });
-	// 	}
-	// });
+	res.status(200).send({ message: 'Successfully logged out.' });
 };
 
 export default {

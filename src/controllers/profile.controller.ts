@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from 'express';
 import { Op } from 'sequelize';
+import { ProfileCreationAttributes } from '../interfaces/profile.model.interface';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import Profile from '../models/profile.model';
 import User from '../models/user.model';
@@ -20,7 +21,7 @@ const getProfiles: RequestHandler = async (req, res) => {
 			where: {},
 		});
 
-		const pages = Math.ceil(profiles.count / +size);
+		const pages: number = Math.ceil(profiles.count / +size);
 
 		res.status(200).send({
 			result: profiles,
@@ -35,7 +36,7 @@ const getProfiles: RequestHandler = async (req, res) => {
 const postProfiles = async (req: RequestWithUser, res: Response) => {
 	const { status, name, profilePhoto } = req.body;
 	try {
-		const profile = await req.user.createProfile({
+		const profile: ProfileCreationAttributes = await req.user.createProfile({
 			status,
 			name,
 			profilePhoto,
@@ -51,7 +52,7 @@ const postProfiles = async (req: RequestWithUser, res: Response) => {
 const getProfile = async (req: RequestWithUser, res: Response) => {
 	try {
 		const { id } = req.params;
-		const profile = await Profile.findOne({
+		const profile: Profile = await Profile.findOne({
 			include: [
 				{
 					model: User,
@@ -72,7 +73,7 @@ const getProfile = async (req: RequestWithUser, res: Response) => {
 const updateProfile = async (req: RequestWithUser, res: Response) => {
 	try {
 		const { id } = req.params;
-		const profile = await Profile.findOne({
+		const profile: Profile = await Profile.findOne({
 			include: [
 				{
 					model: User,
@@ -84,7 +85,7 @@ const updateProfile = async (req: RequestWithUser, res: Response) => {
 		if (!profile) {
 			return res.status(404).json({ message: 'Profile not found.' });
 		}
-		const updatedProfile = await (profile as Profile).update({
+		const updatedProfile: Profile = await (profile as Profile).update({
 			status: req.body.status,
 			name: req.body.name,
 			profilePhoto: req.body.profilePhoto,
@@ -100,7 +101,7 @@ const updateProfile = async (req: RequestWithUser, res: Response) => {
 const deleteProfile: RequestHandler = async (req, res) => {
 	try {
 		const { id } = req.params;
-		const profile = await Profile.findOne({ where: { id } });
+		const profile: Profile = await Profile.findOne({ where: { id } });
 		if (!profile) {
 			return res.status(404).json({ message: 'Profile not found.' });
 		}
