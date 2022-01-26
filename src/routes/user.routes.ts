@@ -40,6 +40,4 @@ router.post(
 	userController.loginUser
 );
 
-router.post('/logout', authMiddleware, userController.logoutUser);
-
 export = router;

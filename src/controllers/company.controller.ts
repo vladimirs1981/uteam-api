@@ -1,4 +1,4 @@
-import { RequestHandler } from 'express';
+import { RequestHandler, Response } from 'express';
 import { slugify } from '../functions/slugifyName';
 import { CompanyCreationAttributes } from '../interfaces/company.model.interface';
 import Company from '../models/company.model';
@@ -32,7 +32,7 @@ const getCompanies: RequestHandler = async (req, res) => {
 	}
 };
 
-const postCompany: RequestHandler = async (req, res) => {
+const postCompany: RequestHandler = async (req, res): Promise<Response> => {
 	const { name, logo } = req.body;
 	try {
 		const company: CompanyCreationAttributes = await Company.create({
@@ -46,10 +46,10 @@ const postCompany: RequestHandler = async (req, res) => {
 	}
 };
 
-const getCompany: RequestHandler = async (req, res) => {
+const getCompany: RequestHandler = async (req, res): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const company: Company = await Company.findOne({
+		const company: Company | null = await Company.findOne({
 			where: { id },
 		});
 		if (!company) {
@@ -61,10 +61,10 @@ const getCompany: RequestHandler = async (req, res) => {
 	}
 };
 
-const updateCompany: RequestHandler = async (req, res) => {
+const updateCompany: RequestHandler = async (req, res): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const company = await Company.findByPk(id);
+		const company: Company | null = await Company.findByPk(id);
 		if (!company) {
 			return res.status(404).json({ message: 'Company not found.' });
 		}
@@ -81,10 +81,10 @@ const updateCompany: RequestHandler = async (req, res) => {
 	}
 };
 
-const deleteCompany: RequestHandler = async (req, res) => {
+const deleteCompany: RequestHandler = async (req, res): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const company: Company = await Company.findOne({ where: { id } });
+		const company: Company | null = await Company.findOne({ where: { id } });
 		if (!company) {
 			return res.status(404).json({ message: 'Company not found.' });
 		}

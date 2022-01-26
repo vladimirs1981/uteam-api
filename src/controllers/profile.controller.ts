@@ -1,11 +1,11 @@
-import { Request, RequestHandler, Response } from 'express';
+import { RequestHandler, Response } from 'express';
 import { Op } from 'sequelize';
 import { ProfileCreationAttributes } from '../interfaces/profile.model.interface';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import Profile from '../models/profile.model';
 import User from '../models/user.model';
 
-const getProfiles: RequestHandler = async (req, res) => {
+const getProfiles: RequestHandler = async (req, res): Promise<Response> => {
 	const { page, size } = req.query;
 
 	try {
@@ -23,17 +23,20 @@ const getProfiles: RequestHandler = async (req, res) => {
 
 		const pages: number = Math.ceil(profiles.count / +size);
 
-		res.status(200).send({
+		return res.status(200).send({
 			result: profiles,
 			pages: pages,
 			'current page': +page,
 		});
 	} catch (err) {
-		res.status(500).json({ message: 'Fail to read profiles.' });
+		return res.status(500).json({ message: 'Fail to read profiles.' });
 	}
 };
 
-const postProfiles = async (req: RequestWithUser, res: Response) => {
+const postProfiles = async (
+	req: RequestWithUser,
+	res: Response
+): Promise<Response> => {
 	const { status, name, profilePhoto } = req.body;
 	try {
 		const profile: ProfileCreationAttributes = await req.user.createProfile({
@@ -49,10 +52,13 @@ const postProfiles = async (req: RequestWithUser, res: Response) => {
 	}
 };
 
-const getProfile = async (req: RequestWithUser, res: Response) => {
+const getProfile = async (
+	req: RequestWithUser,
+	res: Response
+): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const profile: Profile = await Profile.findOne({
+		const profile: Profile | null = await Profile.findOne({
 			include: [
 				{
 					model: User,
@@ -70,10 +76,13 @@ const getProfile = async (req: RequestWithUser, res: Response) => {
 	}
 };
 
-const updateProfile = async (req: RequestWithUser, res: Response) => {
+const updateProfile = async (
+	req: RequestWithUser,
+	res: Response
+): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const profile: Profile = await Profile.findOne({
+		const profile: Profile | null = await Profile.findOne({
 			include: [
 				{
 					model: User,
@@ -98,10 +107,10 @@ const updateProfile = async (req: RequestWithUser, res: Response) => {
 	}
 };
 
-const deleteProfile: RequestHandler = async (req, res) => {
+const deleteProfile: RequestHandler = async (req, res): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const profile: Profile = await Profile.findOne({ where: { id } });
+		const profile: Profile | null = await Profile.findOne({ where: { id } });
 		if (!profile) {
 			return res.status(404).json({ message: 'Profile not found.' });
 		}
@@ -111,8 +120,6 @@ const deleteProfile: RequestHandler = async (req, res) => {
 		return res.status(500).json({ message: 'Fail to read record.' });
 	}
 };
-
-// Profile.belongsTo(User);
 
 export default {
 	getProfiles,

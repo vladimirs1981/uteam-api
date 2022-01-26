@@ -24,7 +24,7 @@ const extractJWT = async (
 				});
 			} else {
 				const username = decoded.username;
-				const user = await User.findOne({ where: { username } });
+				const user: User | null = await User.findOne({ where: { username } });
 				if (user) {
 					req.user = user;
 					res.locals.jwt = decoded;
