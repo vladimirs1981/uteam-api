@@ -1,5 +1,4 @@
 import { RequestHandler, Response } from 'express';
-import bcrypt from 'bcryptjs';
 import { Op } from 'sequelize';
 import User from '../models/user.model';
 import createToken from '../functions/createToken';
@@ -7,6 +6,7 @@ import Profile from '../models/profile.model';
 import { UserCreationAttributes } from '../interfaces/user.model.interface';
 import { TokenData } from '../interfaces/token.interface';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
+import { generateHash } from '../functions/hash.password';
 
 const getUsers: RequestHandler = async (req, res): Promise<Response> => {
 	const { page, size } = req.query;
@@ -62,12 +62,11 @@ const getUser: RequestHandler = async (
 
 const registerUser: RequestHandler = async (req, res): Promise<Response> => {
 	try {
-		const salt = await bcrypt.genSalt(10);
 		const user: UserCreationAttributes = {
 			username: req.body.username,
 			email: req.body.email,
 			role: req.body.role,
-			password: await bcrypt.hash(req.body.password, salt),
+			password: generateHash(req.body.password),
 		};
 		const userDoc: User | null = await User.findOne({
 			where: {
@@ -86,31 +85,16 @@ const registerUser: RequestHandler = async (req, res): Promise<Response> => {
 	}
 };
 
-const loginUser: RequestHandler = async (req, res): Promise<Response> => {
+const loginUser = async (
+	req: RequestWithUser,
+	res: Response
+): Promise<Response> => {
 	try {
-		const { username, email } = req.body;
-		const user: User | null = await User.findOne({
-			where: {
-				[Op.or]: [{ username: username || null }, { email: email || null }],
-			},
+		const tokenData: TokenData = createToken(req.user);
+		return res.status(200).json({
+			message: 'OK',
+			token: tokenData.token,
 		});
-		if (user) {
-			const password_valid = await bcrypt.compare(
-				req.body.password,
-				user.password
-			);
-			if (password_valid) {
-				const tokenData: TokenData = createToken(user);
-				return res.status(200).json({
-					message: 'OK',
-					token: tokenData.token,
-				});
-			} else {
-				return res.status(400).json({ error: 'Password incorrect' });
-			}
-		} else {
-			return res.status(404).json({ error: 'User does not exist' });
-		}
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to read record.' });
 	}

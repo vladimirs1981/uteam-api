@@ -2,6 +2,7 @@ import express from 'express';
 import companyController from '../controllers/company.controller';
 import companyValidator from '../validation/company.validator';
 import Middleware from '../middleware/handle.validations';
+import passport from 'passport';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.get(
 //POST create new company
 router.post(
 	'/companies',
+	passport.authenticate('jwt', { session: false }),
 	companyValidator.checkCreateCompany(),
 	Middleware.handleValidationErrors,
 	companyController.postCompany
@@ -32,6 +34,7 @@ router.get(
 //PUT update company
 router.put(
 	'/companies/:id',
+	passport.authenticate('jwt', { session: false }),
 	companyValidator.checkIdParams(),
 	companyValidator.checkCreateCompany(),
 	Middleware.handleValidationErrors,
@@ -41,6 +44,7 @@ router.put(
 //DELETE company
 router.delete(
 	'/companies/:id',
+	passport.authenticate('jwt', { session: false }),
 	companyValidator.checkIdParams(),
 	Middleware.handleValidationErrors,
 	companyController.deleteCompany

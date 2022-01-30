@@ -1,4 +1,4 @@
-import { body, param, oneOf, check, query } from 'express-validator';
+import { body, param, check, query } from 'express-validator';
 
 class UserValidator {
 	checkCreateUser() {
@@ -28,19 +28,23 @@ class UserValidator {
 
 	checkLoginUser() {
 		return [
-			oneOf([
-				check('username')
-					.exists()
-					.withMessage('username or email is required')
-					.isLength({ min: 2 })
-					.withMessage('wrong username length'),
+			check('usernameOrPassword')
+				.notEmpty()
+				.withMessage('usernameOrPassword filed is required, can not be empty'),
 
-				check('email')
-					.exists()
-					.withMessage('username or email is required')
-					.isEmail()
-					.withMessage('email not valid'),
-			]),
+			// oneOf([
+			// 	check('username')
+			// 		.exists()
+			// 		.withMessage('username or email is required')
+			// 		.isLength({ min: 2 })
+			// 		.withMessage('wrong username length'),
+
+			// 	check('email')
+			// 		.exists()
+			// 		.withMessage('username or email is required')
+			// 		.isEmail()
+			// 		.withMessage('email not valid'),
+			// ]),
 			check('password').exists().withMessage('password is required'),
 		];
 	}

@@ -6,8 +6,11 @@ import profileRoutes from './routes/profile.routes';
 import companyRoutes from './routes/company.routes';
 import { database } from './util/database';
 
+import { configurePassport } from './middleware/passport.strategies';
+
 const app: Application = express();
 
+configurePassport(app);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(

@@ -2,14 +2,14 @@ import express from 'express';
 import userController from '../controllers/user.controller';
 import Middleware from '../middleware/handle.validations';
 import UserValidator from '../validation/user.validator';
-import authMiddleware from '../middleware/auth.middleware';
+import passport from 'passport';
 
 const router = express.Router();
 
 //GET ALL USERS
 router.get(
 	'/users',
-	authMiddleware,
+	passport.authenticate('jwt', { session: false }),
 	UserValidator.checkReadUser(),
 	Middleware.handleValidationErrors,
 	userController.getUsers
@@ -18,7 +18,7 @@ router.get(
 //GET USER BY ID
 router.get(
 	'/users/:id',
-	authMiddleware,
+	passport.authenticate('jwt', { session: false }),
 	UserValidator.checkIdParams(),
 	Middleware.handleValidationErrors,
 	userController.getUser
@@ -37,6 +37,7 @@ router.post(
 	'/login',
 	UserValidator.checkLoginUser(),
 	Middleware.handleValidationErrors,
+	passport.authenticate('local', { session: false }),
 	userController.loginUser
 );
 

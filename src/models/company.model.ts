@@ -45,7 +45,7 @@ Company.init(
 		},
 		slug: {
 			type: Sequelize.DataTypes.STRING,
-			unique: true,
+			unique: 'slug',
 		},
 	},
 	{
