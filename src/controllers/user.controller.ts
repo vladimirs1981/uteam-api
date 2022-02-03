@@ -9,13 +9,13 @@ import { slugify } from '../functions/slugifyName';
 import { ProfileCreationAttributes } from '../interfaces/profile.model.interface';
 import { CompanyCreationAttributes } from '../interfaces/company.model.interface';
 import Company from '../models/company.model';
+import { sequelize } from '../util/database';
 
 const getUsers: RequestHandler = async (req, res): Promise<Response> => {
 	const { page, size } = req.query;
 
 	try {
 		const users = await User.findAndCountAll({
-			attributes: { exclude: ['password'] },
 			include: {
 				model: Profile,
 				attributes: { exclude: ['createdAt', 'updatedAt', 'userId'] },
@@ -44,7 +44,6 @@ const getUser: RequestHandler = async (
 	try {
 		const { id } = req.params;
 		const user: User | null = await User.findOne({
-			attributes: { exclude: ['password'] },
 			include: [
 				{
 					model: Profile,
@@ -68,48 +67,58 @@ const getUser: RequestHandler = async (
 
 const registerUser: RequestHandler = async (req, res): Promise<Response> => {
 	try {
-		const userDoc: User | null = await User.findOne({
-			where: {
-				[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
-			},
-		});
-		if (userDoc) {
-			return res.status(400).json({
-				message: 'User already exists. ',
+		await sequelize.transaction(async (t) => {
+			const userDoc: User | null = await User.findOne({
+				transaction: t,
+				where: {
+					[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
+				},
 			});
-		}
+			if (userDoc) {
+				return res.status(400).json({
+					message: 'User already exists. ',
+				});
+			}
 
-		const created_user: User = await User.create({
-			username: req.body.username,
-			email: req.body.email,
-			role: req.body.role,
-			password: req.body.password,
+			const created_user: User = await User.create(
+				{
+					username: req.body.username,
+					email: req.body.email,
+					role: req.body.role,
+					password: req.body.password,
+				},
+				{ transaction: t }
+			);
+
+			const companyName = !Object.keys(req.body).includes('company_name')
+				? `${created_user.username}'s company`
+				: req.body.company_name;
+
+			const company: CompanyCreationAttributes =
+				await created_user.createCompany(
+					{
+						company_name: companyName,
+						logo: req.body.logo,
+						slug: slugify(companyName),
+					},
+					{ transaction: t }
+				);
+
+			const profile: ProfileCreationAttributes =
+				await created_user.createProfile(
+					{
+						status: req.body.status,
+						name: req.body.name,
+						profilePhoto: req.body.profilePhoto,
+						company_id: company.id,
+					},
+					{ transaction: t }
+				);
+
+			return res
+				.status(201)
+				.json({ user: created_user, profile: profile, company: company });
 		});
-
-		const companyName = !Object.keys(req.body).includes('company_name')
-			? `${created_user.username}'s company`
-			: req.body.company_name;
-
-		const company: CompanyCreationAttributes = await created_user.createCompany(
-			{
-				company_name: companyName,
-				logo: req.body.logo,
-				slug: slugify(companyName),
-			}
-		);
-
-		const profile: ProfileCreationAttributes = await created_user.createProfile(
-			{
-				status: req.body.status,
-				name: req.body.name,
-				profilePhoto: req.body.profilePhoto,
-				company_id: company.id,
-			}
-		);
-
-		return res
-			.status(201)
-			.json({ user: created_user, profile: profile, company: company });
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to read record.' });
 	}

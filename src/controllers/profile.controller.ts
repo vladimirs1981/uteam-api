@@ -39,6 +39,13 @@ const postProfiles = async (
 ): Promise<Response> => {
 	const { status, name, profilePhoto } = req.body;
 	try {
+		const existingProfile = await Profile.findOne({
+			where: { userId: req.user.id },
+		});
+		if (existingProfile) {
+			return res.status(403).send({ message: 'User already have profile.' });
+		}
+
 		const profile: ProfileCreationAttributes = await req.user.createProfile({
 			status,
 			name,
@@ -118,11 +125,9 @@ const deleteProfile = async (
 			where: { id, userId: req.user.id },
 		});
 		if (!profile) {
-			return res
-				.status(404)
-				.json({
-					message: 'Profile not found or must be the owner of the profile.',
-				});
+			return res.status(404).json({
+				message: 'Profile not found or must be the owner of the profile.',
+			});
 		}
 		await profile.destroy();
 		return res.status(204).json({ message: 'Profile deleted.' });

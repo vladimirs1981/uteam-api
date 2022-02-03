@@ -1,7 +1,6 @@
 import { RequestHandler, Response } from 'express';
 import { Op } from 'sequelize';
 import { slugify } from '../functions/slugifyName';
-import { CompanyCreationAttributes } from '../interfaces/company.model.interface';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
 import Company from '../models/company.model';
 import Profile from '../models/profile.model';
@@ -40,12 +39,17 @@ const postCompany = async (
 ): Promise<Response> => {
 	const { company_name, logo } = req.body;
 	try {
-		const company: CompanyCreationAttributes = await Company.create({
+		const company = await Company.create({
 			company_name,
 			logo,
 			slug: slugify(company_name),
 			companyOwner: req.user.id,
 		});
+
+		const profile: Profile | null = await req.user.getProfile();
+
+		await company.addProfile(profile);
+
 		return res.status(201).json({ message: 'Company created.', company });
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to create company.', err });
@@ -104,11 +108,9 @@ const deleteCompany = async (
 			where: { [Op.and]: [{ id: id }, { companyOwner: req.user.id }] },
 		});
 		if (!company) {
-			return res
-				.status(404)
-				.json({
-					message: 'Company not found or must be the owner of the company.',
-				});
+			return res.status(404).json({
+				message: 'Company not found or must be the owner of the company.',
+			});
 		}
 		await company.destroy();
 		return res.status(204).json({ message: 'Company deleted.' });
