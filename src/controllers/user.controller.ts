@@ -3,10 +3,12 @@ import { Op } from 'sequelize';
 import User from '../models/user.model';
 import createToken from '../functions/createToken';
 import Profile from '../models/profile.model';
-import { UserCreationAttributes } from '../interfaces/user.model.interface';
 import { TokenData } from '../interfaces/token.interface';
 import { RequestWithUser } from '../interfaces/requestWithUser.interface';
-import { generateHash } from '../functions/hash.password';
+import { slugify } from '../functions/slugifyName';
+import { ProfileCreationAttributes } from '../interfaces/profile.model.interface';
+import { CompanyCreationAttributes } from '../interfaces/company.model.interface';
+import Company from '../models/company.model';
 
 const getUsers: RequestHandler = async (req, res): Promise<Response> => {
 	const { page, size } = req.query;
@@ -48,6 +50,10 @@ const getUser: RequestHandler = async (
 					model: Profile,
 					attributes: ['status', 'name', 'profilePhoto'],
 				},
+				{
+					model: Company,
+					as: 'companies',
+				},
 			],
 			where: { id },
 		});
@@ -62,12 +68,6 @@ const getUser: RequestHandler = async (
 
 const registerUser: RequestHandler = async (req, res): Promise<Response> => {
 	try {
-		const user: UserCreationAttributes = {
-			username: req.body.username,
-			email: req.body.email,
-			role: req.body.role,
-			password: generateHash(req.body.password),
-		};
 		const userDoc: User | null = await User.findOne({
 			where: {
 				[Op.or]: [{ username: req.body.username }, { email: req.body.email }],
@@ -78,8 +78,38 @@ const registerUser: RequestHandler = async (req, res): Promise<Response> => {
 				message: 'User already exists. ',
 			});
 		}
-		const created_user = await User.create(user);
-		return res.status(201).json(created_user);
+
+		const created_user: User = await User.create({
+			username: req.body.username,
+			email: req.body.email,
+			role: req.body.role,
+			password: req.body.password,
+		});
+
+		const companyName = !Object.keys(req.body).includes('company_name')
+			? `${created_user.username}'s company`
+			: req.body.company_name;
+
+		const company: CompanyCreationAttributes = await created_user.createCompany(
+			{
+				company_name: companyName,
+				logo: req.body.logo,
+				slug: slugify(companyName),
+			}
+		);
+
+		const profile: ProfileCreationAttributes = await created_user.createProfile(
+			{
+				status: req.body.status,
+				name: req.body.name,
+				profilePhoto: req.body.profilePhoto,
+				company_id: company.id,
+			}
+		);
+
+		return res
+			.status(201)
+			.json({ user: created_user, profile: profile, company: company });
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to read record.' });
 	}

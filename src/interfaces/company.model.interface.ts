@@ -2,7 +2,7 @@ import * as Sequelize from 'sequelize';
 
 interface CompanyAttributes {
 	id: number;
-	name: string;
+	company_name: string;
 	logo: string;
 	slug: string;
 }

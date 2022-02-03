@@ -45,7 +45,6 @@ const postProfiles = async (
 			profilePhoto,
 			userId: req.user.id,
 		});
-
 		return res.status(201).json({ message: 'Profile created.', profile });
 	} catch (err) {
 		return res.status(500).json({ message: 'Fail to create profile.', err });
@@ -92,7 +91,9 @@ const updateProfile = async (
 			where: { [Op.and]: [{ id: id }, { userId: req.user.id }] },
 		});
 		if (!profile) {
-			return res.status(404).json({ message: 'Profile not found.' });
+			return res.status(404).json({
+				message: 'Profile not found or must be the owner of the profile.',
+			});
 		}
 		const updatedProfile: Profile = await (profile as Profile).update({
 			status: req.body.status,
@@ -107,12 +108,21 @@ const updateProfile = async (
 	}
 };
 
-const deleteProfile: RequestHandler = async (req, res): Promise<Response> => {
+const deleteProfile = async (
+	req: RequestWithUser,
+	res: Response
+): Promise<Response> => {
 	try {
 		const { id } = req.params;
-		const profile: Profile | null = await Profile.findOne({ where: { id } });
+		const profile: Profile | null = await Profile.findOne({
+			where: { id, userId: req.user.id },
+		});
 		if (!profile) {
-			return res.status(404).json({ message: 'Profile not found.' });
+			return res
+				.status(404)
+				.json({
+					message: 'Profile not found or must be the owner of the profile.',
+				});
 		}
 		await profile.destroy();
 		return res.status(204).json({ message: 'Profile deleted.' });

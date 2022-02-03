@@ -13,13 +13,13 @@ export const configurePassport = (app: Application) => {
 
 	passport.use(
 		new PassportLocal.Strategy(
-			{ usernameField: 'usernameOrPassword', passwordField: 'password' },
-			async (usernameOrPassword, password, done) => {
+			{ usernameField: 'usernameOrEmail', passwordField: 'password' },
+			async (usernameOrEmail, password, done) => {
 				try {
 					const criteria =
-						usernameOrPassword.indexOf('@') === -1
-							? { username: usernameOrPassword }
-							: { email: usernameOrPassword };
+						usernameOrEmail.indexOf('@') === -1
+							? { username: usernameOrEmail }
+							: { email: usernameOrEmail };
 					const user: User | null = await User.findOne({ where: criteria });
 					if (user && compareHash(password, user.password)) {
 						done(null, user);

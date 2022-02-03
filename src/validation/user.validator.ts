@@ -23,28 +23,39 @@ class UserValidator {
 				.withMessage(
 					'Password can not be empty and must be minimun 6 characters long.'
 				),
+			body('status')
+				.optional()
+				.isIn(['Pending', 'Published'])
+				.withMessage('Enter status value: Pending or Published'),
+			body('name')
+				.notEmpty()
+				.withMessage('Profile "name" field can not be empty.')
+				.isString()
+				.isLength({ min: 3 })
+				.withMessage('Profile name must be string minimum 3 characters long.'),
+			body('profilePhoto')
+				.optional()
+				.isURL()
+				.withMessage('Profile photo must be a valid URL string.'),
+			body('company_name')
+				.optional()
+				.isString()
+				.isLength({ min: 2 })
+				.withMessage('Company name must be string minimum 2 characters long.'),
+			body('logo')
+				.optional()
+				.isURL()
+				.withMessage('Company logo must be a valid URL string.'),
+			body('slug').isSlug().optional(),
 		];
 	}
 
 	checkLoginUser() {
 		return [
-			check('usernameOrPassword')
+			check('usernameOrEmail')
+				.exists()
 				.notEmpty()
-				.withMessage('usernameOrPassword filed is required, can not be empty'),
-
-			// oneOf([
-			// 	check('username')
-			// 		.exists()
-			// 		.withMessage('username or email is required')
-			// 		.isLength({ min: 2 })
-			// 		.withMessage('wrong username length'),
-
-			// 	check('email')
-			// 		.exists()
-			// 		.withMessage('username or email is required')
-			// 		.isEmail()
-			// 		.withMessage('email not valid'),
-			// ]),
+				.withMessage('usernameOrEmail field is required, can not be empty'),
 			check('password').exists().withMessage('password is required'),
 		];
 	}

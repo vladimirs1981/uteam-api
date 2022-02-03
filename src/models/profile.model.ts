@@ -18,7 +18,7 @@ Profile.init(
 			type: Sequelize.DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
-			unique: true,
+			unique: 'id',
 		},
 		status: {
 			type: Sequelize.DataTypes.ENUM({
@@ -33,7 +33,8 @@ Profile.init(
 		},
 		profilePhoto: {
 			type: Sequelize.DataTypes.STRING,
-			allowNull: true,
+			allowNull: false,
+			defaultValue: 'https://www.pngkit.com/bigpic/u2q8u2o0w7o0o0u2/',
 		},
 	},
 	{

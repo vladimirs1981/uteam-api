@@ -2,10 +2,11 @@ import * as Sequelize from 'sequelize';
 import { CompanyInstance } from '../interfaces/company.model.interface';
 import { sequelize } from '../util/database';
 import Profile from './profile.model';
+import User from './user.model';
 
 class Company extends Sequelize.Model implements CompanyInstance {
 	id!: number;
-	name!: string;
+	company_name!: string;
 	logo!: string;
 	slug!: string;
 
@@ -23,7 +24,8 @@ class Company extends Sequelize.Model implements CompanyInstance {
 	declare readonly profiles?: Profile[];
 
 	declare static associations: {
-		projects: Sequelize.Association<Company, Profile>;
+		profiles: Sequelize.Association<Company, Profile>;
+		user: Sequelize.Association<Company, User>;
 	};
 }
 
@@ -33,15 +35,16 @@ Company.init(
 			type: Sequelize.DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
-			unique: true,
+			unique: 'id',
 		},
-		name: {
+		company_name: {
 			type: Sequelize.DataTypes.STRING,
-			allowNull: false,
+			allowNull: true,
 		},
 		logo: {
 			type: Sequelize.DataTypes.STRING,
-			allowNull: true,
+			defaultValue:
+				'https://www.pngfind.com/pngs/m/665-6659827_enterprise-comments-default-company-logo-png-transparent-png.png',
 		},
 		slug: {
 			type: Sequelize.DataTypes.STRING,
@@ -60,5 +63,8 @@ Profile.belongsTo(Company, {
 	foreignKey: 'company_id',
 	as: 'company',
 });
+
+User.hasMany(Company, { as: 'companies', foreignKey: 'companyOwner' });
+Company.belongsTo(User, { foreignKey: 'companyOwner' });
 
 export default Company;

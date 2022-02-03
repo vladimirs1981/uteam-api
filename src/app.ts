@@ -34,7 +34,7 @@ app.use((req: Request, res: Response) => {
 
 /**Server + DB */
 (async (): Promise<void> => {
-	await database.sequelize.sync({ alter: true }).then(() => {
+	await database.sequelize.sync({ alter: true, force: false }).then(() => {
 		app.listen(config.server.port, () => {
 			console.log(`Server is running on port:${config.server.port}`);
 		});

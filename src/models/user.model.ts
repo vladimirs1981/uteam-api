@@ -1,7 +1,9 @@
 import * as Sequelize from 'sequelize';
 import { HasOneCreateAssociationMixin } from 'sequelize';
+import { generateHash } from '../functions/hash.password';
 import { Role, UserInstance } from '../interfaces/user.model.interface';
 import { sequelize } from '../util/database';
+import Company from './company.model';
 import Profile from './profile.model';
 
 class User extends Sequelize.Model implements UserInstance {
@@ -12,6 +14,11 @@ class User extends Sequelize.Model implements UserInstance {
 	password!: string;
 
 	declare createProfile: HasOneCreateAssociationMixin<Profile>;
+	declare createCompany: HasOneCreateAssociationMixin<Company>;
+
+	declare static associations: {
+		companies: Sequelize.Association<User, Company>;
+	};
 }
 
 User.init(
@@ -20,7 +27,7 @@ User.init(
 			type: Sequelize.DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
-			unique: true,
+			unique: 'id',
 		},
 		username: {
 			type: Sequelize.DataTypes.STRING,
@@ -43,12 +50,20 @@ User.init(
 			allowNull: false,
 		},
 	},
+
 	{
+		hooks: {
+			beforeCreate: (user) => {
+				const hashedPassword = generateHash(user.password);
+				user.password = hashedPassword;
+			},
+		},
 		tableName: 'users',
 		sequelize: sequelize,
 		modelName: 'user',
 	}
 );
+
 Profile.belongsTo(User, {
 	foreignKey: 'userId',
 	constraints: true,

@@ -4,7 +4,7 @@ class CompanyValidator {
 	checkCreateCompany() {
 		return [
 			body('id').optional().isNumeric(),
-			body('name')
+			body('company_name')
 				.notEmpty()
 				.withMessage('Name can not be empty.')
 				.isString()
