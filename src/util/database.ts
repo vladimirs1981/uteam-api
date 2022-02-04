@@ -14,6 +14,4 @@ export const sequelize = new Sequelize(
 
 export const database = {
 	sequelize,
-	User: sequelize,
-	Profile: sequelize,
 };

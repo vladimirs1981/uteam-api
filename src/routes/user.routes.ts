@@ -1,20 +1,24 @@
 import express from 'express';
-import userController from '../controllers/user';
+import userController from '../controllers/user.controller';
 import Middleware from '../middleware/handle.validations';
 import UserValidator from '../validation/user.validator';
-import extractJWT from '../middleware/extractJWT';
+import passport from 'passport';
 
 const router = express.Router();
 
-//SAMPLE ROUTE TO CHECK TOKEN
-router.get('/validate', extractJWT, userController.validateToken);
-
 //GET ALL USERS
-router.get('/users', userController.getUsers);
+router.get(
+	'/users',
+	passport.authenticate('jwt', { session: false }),
+	UserValidator.checkReadUser(),
+	Middleware.handleValidationErrors,
+	userController.getUsers
+);
 
 //GET USER BY ID
 router.get(
 	'/users/:id',
+	passport.authenticate('jwt', { session: false }),
 	UserValidator.checkIdParams(),
 	Middleware.handleValidationErrors,
 	userController.getUser
@@ -33,6 +37,7 @@ router.post(
 	'/login',
 	UserValidator.checkLoginUser(),
 	Middleware.handleValidationErrors,
+	passport.authenticate('local', { session: false }),
 	userController.loginUser
 );
 

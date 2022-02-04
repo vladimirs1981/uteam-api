@@ -1,5 +1,6 @@
 import express from 'express';
-import profileController from '../controllers/profile';
+import passport from 'passport';
+import profileController from '../controllers/profile.controller';
 import Middleware from '../middleware/handle.validations';
 import ProfileValidator from '../validation/profile.validator';
 
@@ -16,6 +17,7 @@ router.get(
 //CREATE new profile
 router.post(
 	'/profiles',
+	passport.authenticate('jwt', { session: false }),
 	ProfileValidator.checkCreateProfile(),
 	Middleware.handleValidationErrors,
 	profileController.postProfiles
@@ -32,6 +34,7 @@ router.get(
 //UPDATE profile
 router.put(
 	'/profiles/:id',
+	passport.authenticate('jwt', { session: false }),
 	ProfileValidator.checkIdParams(),
 	ProfileValidator.checkUpdateProfile(),
 	Middleware.handleValidationErrors,
@@ -41,6 +44,7 @@ router.put(
 //DELETE profile
 router.delete(
 	'/profiles/:id',
+	passport.authenticate('jwt', { session: false }),
 	ProfileValidator.checkIdParams(),
 	Middleware.handleValidationErrors,
 	profileController.deleteProfile

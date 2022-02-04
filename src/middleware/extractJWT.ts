@@ -1,22 +1,35 @@
 import config from '../config/config';
-import { RequestHandler } from 'express';
+import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { RequestWithUser } from '../interfaces/requestWithUser.interface';
+import User from '../models/user.model';
 
-const extractJWT: RequestHandler = async (req, res, next) => {
+const extractJWT = async (
+	req: RequestWithUser,
+	res: Response,
+	next: NextFunction
+) => {
 	console.log('Validating token');
 
 	const token = req.headers.authorization?.split(' ')[1];
 
+	console.log(token);
+
 	if (token) {
-		jwt.verify(token, config.server.token.secret, (error, decoded) => {
+		jwt.verify(token, config.server.token.secret, async (error, decoded) => {
 			if (error) {
 				return res.status(404).json({
 					message: error.message,
 					error,
 				});
 			} else {
-				res.locals.jwt = decoded;
-				next();
+				const username = decoded.username;
+				const user: User | null = await User.findOne({ where: { username } });
+				if (user) {
+					req.user = user;
+					res.locals.jwt = decoded;
+					next();
+				}
 			}
 		});
 	} else {
