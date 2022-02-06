@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import config from './config/config';
-import { database } from './util/database';
 import { configurePassport } from './middleware/passport.strategies';
 import Controller from './interfaces/controller.interfaces';
 import errorMiddleware from './middleware/error.middleware';
@@ -14,7 +13,6 @@ class App {
 		this.initializeMiddlewares();
 		this.initializeControllers(controllers);
 		this.intializeErrorHandling();
-		this.connectToDatabase();
 	}
 
 	public listen() {
@@ -42,14 +40,6 @@ class App {
 		controllers.forEach((controller) => {
 			this.app.use(controller.router);
 		});
-	}
-
-	private connectToDatabase() {
-		(async (): Promise<void> => {
-			await database.sequelize.sync({ alter: true, force: false }).then(() => {
-				console.log('Connected to DB.');
-			});
-		})();
 	}
 }
 
