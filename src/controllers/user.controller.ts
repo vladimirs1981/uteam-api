@@ -161,7 +161,7 @@ class UsersController implements Controller {
 							status: req.body.status,
 							name: req.body.name,
 							profilePhoto: req.body.profilePhoto,
-							//company_id: company.id,
+							company_id: company.id,
 						},
 						{ transaction: t }
 					);
