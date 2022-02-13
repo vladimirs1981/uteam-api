@@ -8,7 +8,7 @@
     "dev": "ts-node-dev --respawn src/server.ts",
     "lint": "eslint . --ext .ts",
     "start:build": "tsc -w",
-    "start:run": "nodemon --config nodemon.json src/app.ts",
+    "start:run": "nodemon --config nodemon.json src/server.ts",
     "start": "concurrently npm:start:*",
     "companies:seed": "ts-node src/seeder/company.seeder.ts"
   },

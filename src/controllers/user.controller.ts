@@ -15,6 +15,7 @@ import UserNotFoundException from '../exceptions/UserNotFoundException';
 import passport from 'passport';
 import Middleware from '../middleware/handle.validations';
 import UserValidator from '../validation/user.validator';
+import FailToReadRecordException from '../exceptions/FailToReadRecordException';
 
 class UsersController implements Controller {
 	public path = '/users';
@@ -55,7 +56,11 @@ class UsersController implements Controller {
 		);
 	}
 
-	private getAllUsers = async (req: express.Request, res: express.Response) => {
+	private getAllUsers = async (
+		req: express.Request,
+		res: express.Response,
+		next: express.NextFunction
+	) => {
 		const { page, size } = req.query;
 
 		try {
@@ -77,7 +82,7 @@ class UsersController implements Controller {
 				'current page': +page,
 			});
 		} catch (err) {
-			return res.status(500).json({ message: 'Fail to read users.' });
+			next(new FailToReadRecordException());
 		}
 	};
 
@@ -85,7 +90,7 @@ class UsersController implements Controller {
 		req: RequestWithUser,
 		res: express.Response,
 		next: express.NextFunction
-	): Promise<express.Response> => {
+	) => {
 		try {
 			const { id } = req.params;
 			const user: User | null = await this.user.findOne({
@@ -106,14 +111,15 @@ class UsersController implements Controller {
 			}
 			res.status(200).json(user);
 		} catch (error) {
-			return res.status(500).json({ message: 'Fail to read record.' });
+			next(new FailToReadRecordException());
 		}
 	};
 
 	private registerUser = async (
 		req: express.Request,
-		res: express.Response
-	): Promise<express.Response> => {
+		res: express.Response,
+		next: express.NextFunction
+	) => {
 		try {
 			await sequelize.transaction(async (t) => {
 				const userDoc: User | null = await this.user.findOne({
@@ -173,13 +179,14 @@ class UsersController implements Controller {
 				});
 			});
 		} catch (err) {
-			return res.status(500).json({ message: 'Fail to read record.' });
+			next(new FailToReadRecordException());
 		}
 	};
 
 	private loginUser = async (
 		req: RequestWithUser,
-		res: express.Response
+		res: express.Response,
+		next: express.NextFunction
 	): Promise<express.Response> => {
 		try {
 			const tokenData: TokenData = createToken(req.user);
@@ -188,7 +195,7 @@ class UsersController implements Controller {
 				token: tokenData.token,
 			});
 		} catch (err) {
-			return res.status(500).json({ message: 'Fail to read record.' });
+			next(new FailToReadRecordException());
 		}
 	};
 }

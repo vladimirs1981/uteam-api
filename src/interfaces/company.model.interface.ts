@@ -9,7 +9,7 @@ interface CompanyAttributes {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface CompanyCreationAttributes
-	extends Sequelize.Optional<CompanyAttributes, 'id'> {}
+	extends Sequelize.Optional<CompanyAttributes, 'id' | 'logo'> {}
 
 export interface CompanyInstance
 	extends Sequelize.Model<CompanyAttributes, CompanyCreationAttributes>,

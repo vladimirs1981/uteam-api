@@ -1,5 +1,4 @@
 import * as Sequelize from 'sequelize';
-import { HasOneCreateAssociationMixin } from 'sequelize';
 import { generateHash } from '../functions/hash.password';
 import { Role, UserInstance } from '../interfaces/user.model.interface';
 import { sequelize } from '../util/database';
@@ -13,9 +12,9 @@ class User extends Sequelize.Model implements UserInstance {
 	role!: Role;
 	password!: string;
 
-	declare createProfile: HasOneCreateAssociationMixin<Profile>;
-	declare getProfile: HasOneCreateAssociationMixin<Profile>;
-	declare createCompany: HasOneCreateAssociationMixin<Company>;
+	declare createProfile: Sequelize.HasOneCreateAssociationMixin<Profile>;
+	declare getProfile: Sequelize.HasOneCreateAssociationMixin<Profile>;
+	declare createCompany: Sequelize.HasOneCreateAssociationMixin<Company>;
 
 	declare static associations: {
 		companies: Sequelize.Association<User, Company>;

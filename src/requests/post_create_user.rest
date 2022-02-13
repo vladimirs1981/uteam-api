@@ -1,0 +1,10 @@
+POST http://localhost:8001/users
+content-type: application/json
+Authorization: token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZsYWRpbWlyIiwiaWF0IjoxNjQ0NTA3MjAxLCJleHAiOjMyODkzNzQ0MDIsImlzcyI6ImNvb2xJc3N1ZXIifQ.jiZXhUwujcFZR_kOyPjnRRQxq9IvEic7tLJ3Ue0wpuQ
+
+{
+    "email":"newuser@test.com",
+    "username": "newuser",
+    "password":"newuser123",
+    "name": "newuser_profile"
+}

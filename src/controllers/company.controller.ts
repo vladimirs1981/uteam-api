@@ -85,7 +85,7 @@ class CompaniesController implements Controller {
 				'current page': +page,
 			});
 		} catch (err) {
-			res.status(500).json({ message: 'Fail to read companies.' });
+			res.status(500).json({ message: 'Fail to read companies.', err });
 		}
 	};
 
