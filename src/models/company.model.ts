@@ -50,12 +50,18 @@ Company.init(
 			type: Sequelize.DataTypes.STRING,
 			unique: 'slug',
 		},
+		createdAt: {
+			type: Sequelize.DataTypes.DATE,
+		},
+		updatedAt: {
+			type: Sequelize.DataTypes.DATE,
+		},
 	},
 	{
 		tableName: 'companies',
 		modelName: 'company',
 		sequelize: sequelize,
-		timestamps: false,
+		timestamps: true,
 	}
 );
 
