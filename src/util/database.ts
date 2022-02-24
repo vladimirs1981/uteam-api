@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-
+import { Umzug, SequelizeStorage } from 'umzug';
 import config from '../config/config';
 
 export const sequelize = new Sequelize(
@@ -12,6 +12,31 @@ export const sequelize = new Sequelize(
 	}
 );
 
+const migrationConf = {
+	migrations: {
+		glob: 'migrations/*.ts',
+	},
+	storage: new SequelizeStorage({ sequelize, tableName: 'migrations' }),
+	context: sequelize.getQueryInterface(),
+	logger: console,
+};
+
+const runMigrations = async () => {
+	const migrator = new Umzug(migrationConf);
+	const migrations = await migrator.up();
+	console.log('Migrations up to date', {
+		files: migrations.map((mig) => mig.name),
+	});
+};
+
+const rollbackMigration = async () => {
+	await sequelize.authenticate();
+	const migrator = new Umzug(migrationConf);
+	await migrator.down();
+};
+
 export const database = {
 	sequelize,
+	runMigrations,
+	rollbackMigration,
 };

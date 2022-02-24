@@ -55,6 +55,7 @@ Company.init(
 		tableName: 'companies',
 		modelName: 'company',
 		sequelize: sequelize,
+		timestamps: false,
 	}
 );
 

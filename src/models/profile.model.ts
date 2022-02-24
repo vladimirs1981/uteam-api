@@ -41,6 +41,7 @@ Profile.init(
 		tableName: 'profiles',
 		sequelize: sequelize,
 		modelName: 'profile',
+		timestamps: false,
 	}
 );
 

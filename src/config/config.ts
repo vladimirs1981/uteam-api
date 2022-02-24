@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const SERVER_HOSTNAME: string = process.env.SERVER_HOSTNAME || 'localhost';
-const SERVER_PORT = process.env.SERVER_PORT || 8001;
+const SERVER_PORT = process.env.SERVER_PORT || 3000;
 const DB_PASSWORD = process.env.DB_PASSWORD;
-const DB_NAME = process.env.DB_NAME || 'uteam_api';
+const DB_NAME = process.env.DB_NAME || 'uteam';
 const DB_USER = process.env.DB_USER || 'root';
 const SERVER_TOKEN_EXPIRETIME = process.env.SERVER_TOKEN_EXPIRETIME || 3600;
 const SERVER_TOKEN_ISSUER = process.env.SERVER_TOKEN_ISSUER || 'vladaTheIssuer';

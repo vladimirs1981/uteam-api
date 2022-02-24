@@ -6,7 +6,8 @@ import { database } from './util/database';
 
 (async (): Promise<void> => {
 	try {
-		await database.sequelize.sync({ alter: true, force: false });
+		await database.sequelize.authenticate();
+		await database.runMigrations();
 		console.log('Connecting to DB...');
 	} catch (error) {
 		console.log('Error while connecting to database', error);
