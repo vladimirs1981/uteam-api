@@ -14,10 +14,12 @@ class User extends Sequelize.Model implements UserInstance {
 	password!: string;
 
 	declare createProfile: HasOneCreateAssociationMixin<Profile>;
+	declare getProfile: HasOneCreateAssociationMixin<Profile>;
 	declare createCompany: HasOneCreateAssociationMixin<Company>;
 
 	declare static associations: {
 		companies: Sequelize.Association<User, Company>;
+		profile: Sequelize.Association<User, Profile>;
 	};
 }
 
@@ -27,7 +29,7 @@ User.init(
 			type: Sequelize.DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
-			unique: 'id',
+			unique: true,
 		},
 		username: {
 			type: Sequelize.DataTypes.STRING,
